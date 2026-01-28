@@ -88,14 +88,13 @@ button{
   <div class="card">
     <h2>Generate Payment Link</h2>
 
+    <!-- UPI ID FIRST -->
+    <label>UPI ID</label>
+    <input id="upi" type="text" placeholder="6301313335@mbk">
+
+    <!-- AMOUNT -->
     <label>Amount (₹)</label>
     <input id="amount" type="number" placeholder="Enter amount">
-
-    <label>Note (optional)</label>
-    <input id="note" type="text" placeholder="Payment note">
-
-    <label>UPI ID (leave empty to use default)</label>
-    <input id="upi" type="text" placeholder="6301313335@mbk">
 
     <button onclick="generate()">Generate Link</button>
 
@@ -117,16 +116,15 @@ const DEFAULT_UPI = "6301313335@mbk";
 let generatedLink = "";
 
 function generate(){
-  const amount = document.getElementById("amount").value;
-  const note = document.getElementById("note").value || "";
   const upiInput = document.getElementById("upi").value.trim();
+  const amount = document.getElementById("amount").value;
 
   if(!amount){
     alert("Please enter amount");
     return;
   }
 
-  // If empty → use default UPI
+  // If UPI ID is empty → use default
   const upi = upiInput === "" ? DEFAULT_UPI : upiInput;
 
   const base =
@@ -134,7 +132,7 @@ function generate(){
     location.pathname.replace("index.html","");
 
   generatedLink =
-    `${base}pay.html?am=${encodeURIComponent(amount)}&tn=${encodeURIComponent(note)}`;
+    `${base}pay.html?am=${encodeURIComponent(amount)}`;
 
   document.getElementById("url").innerText = generatedLink;
   document.getElementById("result").style.display = "block";
