@@ -43,6 +43,7 @@ body{
   margin:8px 0 18px;
 }
 
+/* APP BUTTONS */
 .apps{
   display:flex;
   justify-content:space-between;
@@ -50,24 +51,25 @@ body{
   margin-bottom:22px;
 }
 
-.apps a{
+.app-btn{
   width:72px;
   height:72px;
-  background:#fff;
   border-radius:16px;
   border:1px solid #eee;
+  background:#fff;
+  box-shadow:0 10px 24px rgba(0,0,0,.06);
   display:flex;
   align-items:center;
   justify-content:center;
-  text-decoration:none;
-  box-shadow:0 10px 24px rgba(0,0,0,.06);
+  cursor:pointer;
 }
 
-.apps img{
+.app-btn img{
   width:42px;
   height:42px;
 }
 
+/* MAIN CTA */
 .pay-btn{
   display:block;
   padding:18px;
@@ -80,6 +82,7 @@ body{
   margin-bottom:14px;
 }
 
+/* WHATSAPP */
 .whatsapp{
   display:block;
   padding:15px;
@@ -108,15 +111,23 @@ body{
     <div class="small">Amount to Pay</div>
     <div id="am" class="amount">₹ 0</div>
 
-    <!-- SUPPORTED UPI APPS -->
+    <!-- APP BUTTONS (NOT LINKS) -->
     <div class="apps">
-      <a id="phonepe"><img src="icons/phonepe.png" alt="PhonePe"></a>
-      <a id="paytm"><img src="icons/paytm.png" alt="Paytm"></a>
-      <a id="cred"><img src="icons/cred.png" alt="CRED"></a>
-      <a id="amazonpay"><img src="icons/amazonpay.png" alt="Amazon Pay"></a>
+      <button class="app-btn" onclick="payPhonePe()">
+        <img src="icons/phonepe.png" alt="PhonePe">
+      </button>
+      <button class="app-btn" onclick="payPaytm()">
+        <img src="icons/paytm.png" alt="Paytm">
+      </button>
+      <button class="app-btn" onclick="payCred()">
+        <img src="icons/cred.png" alt="CRED">
+      </button>
+      <button class="app-btn" onclick="payAmazon()">
+        <img src="icons/amazonpay.png" alt="Amazon Pay">
+      </button>
     </div>
 
-    <!-- UNIVERSAL PAY -->
+    <!-- PAY NOW -->
     <a id="payNow" class="pay-btn">💳 Pay Now</a>
 
     <!-- WHATSAPP CONFIRM -->
@@ -128,10 +139,9 @@ body{
 </div>
 
 <script>
-/* ---------------- CONFIG ---------------- */
-const UPI_ID = "6301313335@mbk";   // 🔒 fixed & hidden
+/* CONFIG */
+const UPI_ID = "6301313335@mbk";
 const WHATSAPP_NO = "916301313335";
-/* --------------------------------------- */
 
 const p = new URLSearchParams(location.search);
 const am = p.get("am") || "0";
@@ -139,7 +149,6 @@ const tn = p.get("tn") || "";
 
 document.getElementById("am").textContent = "₹ " + am;
 
-// Base UPI link (safe everywhere)
 const upi =
   `upi://pay?pa=${encodeURIComponent(UPI_ID)}&am=${encodeURIComponent(am)}&tn=${encodeURIComponent(tn)}&cu=INR`;
 
@@ -148,36 +157,41 @@ document.getElementById("qr").src =
   "https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=" +
   encodeURIComponent(upi);
 
-// Pay Now (chooser / default app)
+// Pay Now
 document.getElementById("payNow").href = upi;
 
-// WhatsApp (NO UPI ID)
+// WhatsApp (ONLY here)
 document.getElementById("wa").href =
   `https://wa.me/${WHATSAPP_NO}?text=` +
   encodeURIComponent(`Hi, I have completed the payment of ₹${am}.`);
 
-// Platform detect
+// Platform
 const isAndroid = /Android/i.test(navigator.userAgent);
 
-// PhonePe
-document.getElementById("phonepe").href = isAndroid
-  ? `phonepe://upi/pay?pa=${encodeURIComponent(UPI_ID)}&am=${encodeURIComponent(am)}&tn=${encodeURIComponent(tn)}&cu=INR`
-  : upi;
+// BUTTON HANDLERS
+function payPhonePe(){
+  window.location.href = isAndroid
+    ? `phonepe://upi/pay?pa=${encodeURIComponent(UPI_ID)}&am=${encodeURIComponent(am)}&tn=${encodeURIComponent(tn)}&cu=INR`
+    : upi;
+}
 
-// Paytm
-document.getElementById("paytm").href = isAndroid
-  ? `paytmmp://upi/pay?pa=${encodeURIComponent(UPI_ID)}&am=${encodeURIComponent(am)}&tn=${encodeURIComponent(tn)}&cu=INR`
-  : upi;
+function payPaytm(){
+  window.location.href = isAndroid
+    ? `paytmmp://upi/pay?pa=${encodeURIComponent(UPI_ID)}&am=${encodeURIComponent(am)}&tn=${encodeURIComponent(tn)}&cu=INR`
+    : upi;
+}
 
-// CRED
-document.getElementById("cred").href = isAndroid
-  ? `credpay://upi/pay?pa=${encodeURIComponent(UPI_ID)}&am=${encodeURIComponent(am)}&tn=${encodeURIComponent(tn)}&cu=INR`
-  : upi;
+function payCred(){
+  window.location.href = isAndroid
+    ? `credpay://upi/pay?pa=${encodeURIComponent(UPI_ID)}&am=${encodeURIComponent(am)}&tn=${encodeURIComponent(tn)}&cu=INR`
+    : upi;
+}
 
-// Amazon Pay
-document.getElementById("amazonpay").href = isAndroid
-  ? `amazonpay://upi/pay?pa=${encodeURIComponent(UPI_ID)}&am=${encodeURIComponent(am)}&tn=${encodeURIComponent(tn)}&cu=INR`
-  : upi;
+function payAmazon(){
+  window.location.href = isAndroid
+    ? `amazonpay://upi/pay?pa=${encodeURIComponent(UPI_ID)}&am=${encodeURIComponent(am)}&tn=${encodeURIComponent(tn)}&cu=INR`
+    : upi;
+}
 </script>
 
 </body>
