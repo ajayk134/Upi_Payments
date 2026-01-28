@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Generate UPI Payment Link</title>
+<title>UPI Payment</title>
 
 <style>
 body{
@@ -39,7 +39,7 @@ input{
   border:1px solid #ddd;
   font-size:16px;
 }
-button{
+button,a.pay-now{
   width:100%;
   padding:16px;
   border:none;
@@ -49,10 +49,9 @@ button{
   font-size:18px;
   font-weight:800;
   cursor:pointer;
-}
-.result{
-  margin-top:20px;
-  display:none;
+  text-decoration:none;
+  display:block;
+  text-align:center;
 }
 .url-box{
   background:#f1f3f6;
@@ -60,96 +59,156 @@ button{
   border-radius:10px;
   font-size:13px;
   word-break:break-all;
-  margin-bottom:12px;
+  margin-top:16px;
 }
 .actions{
   display:flex;
   gap:10px;
+  margin-top:10px;
 }
-.copy-btn{
-  flex:1;
+.copy-btn{background:#25D366}
+.open-btn{background:#007aff}
+.qr{
+  width:260px;
+  height:260px;
+  display:block;
+  margin:0 auto 14px;
+}
+.amount{
+  font-size:38px;
+  font-weight:900;
+  text-align:center;
+  margin:10px 0 16px;
+}
+.whatsapp{
   background:#25D366;
-}
-.open-btn{
-  flex:1;
-  background:#007aff;
+  margin-top:14px;
 }
 .footer{
   margin-top:18px;
   text-align:center;
   font-weight:800;
 }
+.hidden{display:none}
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<!-- 🔹 GENERATOR VIEW -->
+<div id="generator" class="container">
   <div class="card">
     <h2>Generate Payment Link</h2>
 
-    <!-- UPI ID -->
     <label>UPI ID</label>
-    <input id="upi" type="text" placeholder="6301313335@mbk">
+    <input id="upi" placeholder="6301313335@mbk">
 
-    <!-- Amount -->
     <label>Amount (₹)</label>
     <input id="amount" type="number" placeholder="Enter amount">
 
     <button onclick="generate()">Generate Link</button>
 
-    <div class="result" id="result">
+    <div id="result" class="hidden">
       <div class="url-box" id="url"></div>
-
       <div class="actions">
         <button class="copy-btn" onclick="copyLink()">📋 Copy</button>
         <button class="open-btn" onclick="openLink()">🔗 Open</button>
       </div>
     </div>
   </div>
+  <div class="footer">ADP | Always Deliver Pass</div>
+</div>
 
+<!-- 🔹 PAY VIEW -->
+<div id="pay" class="container hidden">
+  <div class="card">
+    <img id="qr" class="qr">
+    <div class="amount" id="am">₹ 0</div>
+
+    <a id="payNow" class="pay-now">💳 Pay Now</a>
+    <a id="wa" class="pay-now whatsapp">💬 Paid? Confirm on WhatsApp</a>
+  </div>
   <div class="footer">ADP | Always Deliver Pass</div>
 </div>
 
 <script>
 const DEFAULT_UPI = "6301313335@mbk";
+const WHATSAPP_NO = "916301313335";
+
+function show(view){
+  document.getElementById("generator").classList.add("hidden");
+  document.getElementById("pay").classList.add("hidden");
+  document.getElementById(view).classList.remove("hidden");
+}
+
+/* -------- ROUTER -------- */
+function route(){
+  const hash = location.hash.split("/").filter(Boolean).map(decodeURIComponent);
+
+  if(hash[0] === "pay"){
+    show("pay");
+
+    let upi = DEFAULT_UPI;
+    let amount = "0";
+
+    if(hash.length === 2){
+      amount = hash[1];
+    }
+    if(hash.length === 3){
+      upi = hash[1];
+      amount = hash[2];
+    }
+
+    document.getElementById("am").innerText = "₹ " + amount;
+
+    const upiLink =
+      `upi://pay?pa=${encodeURIComponent(upi)}&am=${encodeURIComponent(amount)}&cu=INR`;
+
+    document.getElementById("qr").src =
+      "https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=" +
+      encodeURIComponent(upiLink);
+
+    document.getElementById("payNow").href = upiLink;
+
+    document.getElementById("wa").href =
+      "https://wa.me/" + WHATSAPP_NO + "?text=" +
+      encodeURIComponent(
+        `Hi 👋\nI’ve just completed the payment of ₹${amount}.\nPlease confirm once you receive it 🙂`
+      );
+  } else {
+    show("generator");
+  }
+}
+
+window.addEventListener("hashchange", route);
+route();
+
+/* -------- GENERATOR -------- */
 let generatedLink = "";
 
 function generate(){
   const upiInput = document.getElementById("upi").value.trim();
   const amount = document.getElementById("amount").value;
 
-  if(!amount){
-    alert("Please enter amount");
-    return;
-  }
+  if(!amount){ alert("Enter amount"); return; }
 
-  const base =
-    location.origin +
-    location.pathname.replace("index.html","");
-
-  // 🔥 CORE LOGIC
-  if (upiInput === "") {
-    // Default UPI → clean link
-    generatedLink =
-      `${base}pay.html#/pay/${encodeURIComponent(amount)}`;
+  if(upiInput === ""){
+    generatedLink = `${location.origin}${location.pathname}#/pay/${amount}`;
   } else {
-    // Custom UPI → include UPI in URL
-    generatedLink =
-      `${base}pay.html#/pay/${encodeURIComponent(upiInput)}/${encodeURIComponent(amount)}`;
+    generatedLink = `${location.origin}${location.pathname}#/pay/${encodeURIComponent(upiInput)}/${amount}`;
   }
 
   document.getElementById("url").innerText = generatedLink;
-  document.getElementById("result").style.display = "block";
+  document.getElementById("result").classList.remove("hidden");
 }
 
 function copyLink(){
   navigator.clipboard.writeText(generatedLink);
-  alert("Payment link copied");
+  alert("Link copied");
 }
 
 function openLink(){
-  window.open(generatedLink, "_blank");
+  location.href = generatedLink;
 }
 </script>
 
