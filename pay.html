@@ -62,6 +62,7 @@ body {
 
 .app img {
   width: 100%;
+  display: block;
 }
 
 .whatsapp {
@@ -77,14 +78,9 @@ body {
 
 .footer {
   text-align: center;
-  font-size: 13px;
-  color: #777;
-  margin-top: 14px;
-}
-
-.brand {
+  font-size: 14px;
   font-weight: 700;
-  color: #000;
+  margin-top: 16px;
 }
 </style>
 </head>
@@ -102,32 +98,32 @@ body {
     <div class="label" style="margin-top:10px;">Amount</div>
     <div id="am" class="amount"></div>
 
-    <!-- UPI Apps -->
+    <!-- UPI APPS (ONLY UPI OPENS HERE) -->
     <div class="apps">
-      <div class="app" onclick="pay()">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_Pay_Logo.svg/512px-Google_Pay_Logo.svg.png">
+      <div class="app" onclick="openUPI()">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_Pay_Logo.svg" alt="Google Pay">
       </div>
-      <div class="app" onclick="pay()">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/PhonePe_Logo.svg/512px-PhonePe_Logo.svg.png">
+      <div class="app" onclick="openUPI()">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/PhonePe_Logo.svg" alt="PhonePe">
       </div>
-      <div class="app" onclick="pay()">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Paytm_logo.png/512px-Paytm_logo.png">
+      <div class="app" onclick="openUPI()">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/5/55/Paytm_logo.png" alt="Paytm">
       </div>
-      <div class="app" onclick="pay()">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/BHIM_Logo.png/512px-BHIM_Logo.png">
+      <div class="app" onclick="openUPI()">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/9/9d/BHIM_Logo.png" alt="BHIM">
       </div>
     </div>
 
-    <!-- WhatsApp CTA -->
+    <!-- WHATSAPP CONFIRMATION -->
     <a id="wa" class="whatsapp" target="_blank">
       💬 Paid? Confirm on WhatsApp
     </a>
 
   </div>
 
+  <!-- FOOTER (ONLY BRAND) -->
   <div class="footer">
-    Create UPI payment links using  
-    <span class="brand">ADP | Always Deliver Pass</span>
+    ADP | Always Deliver Pass
   </div>
 </div>
 
@@ -146,12 +142,14 @@ document.getElementById("am").innerText = "₹ " + am;
 document.getElementById("qr").src =
   `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiLink)}`;
 
+// WhatsApp ONLY here
 document.getElementById("wa").href =
   `https://wa.me/916301313335?text=${encodeURIComponent(
     "Hi, I have completed the payment of ₹" + am + " to " + pa
   )}`;
 
-function pay() {
+// UPI apps ONLY here
+function openUPI() {
   window.location.href = upiLink;
 }
 </script>
