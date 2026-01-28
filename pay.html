@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UPI Payment</title>
+
+<style>
+body {
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #eee;
+  margin: 0;
+}
+.container {
+  max-width: 420px;
+  margin: auto;
+  padding: 20px;
+}
+.card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  text-align: center;
+}
+.qr {
+  width: 260px;
+  height: 260px;
+}
+.amount {
+  font-size: 28px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+.sub {
+  color: #666;
+  margin: 6px 0;
+}
+.apps {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+.app img {
+  width: 52px;
+}
+.footer {
+  text-align: center;
+  font-size: 13px;
+  color: #777;
+  margin-top: 15px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="card">
+    <img id="qr" class="qr">
+    <div class="sub">You are paying</div>
+    <div id="pa" style="font-weight:600"></div>
+    <div class="sub">Amount</div>
+    <div id="am" class="amount"></div>
+
+    <div class="apps">
+      <div class="app" onclick="openApp()"><img src="https://i.imgur.com/q8YvQ6Q.png"></div>
+      <div class="app" onclick="openApp()"><img src="https://i.imgur.com/9E6bM9N.png"></div>
+      <div class="app" onclick="openApp()"><img src="https://i.imgur.com/LZJkYkD.png"></div>
+      <div class="app" onclick="openApp()"><img src="https://i.imgur.com/0T1KZ8T.png"></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Create UPI payment links using <b>your site</b>
+  </div>
+</div>
+
+<script>
+const p = new URLSearchParams(location.search);
+const pa = p.get("pa");
+const am = p.get("am");
+const tn = p.get("tn") || "";
+
+const upi =
+  `upi://pay?pa=${pa}&am=${am}&tn=${encodeURIComponent(tn)}&cu=INR`;
+
+document.getElementById("pa").innerText = pa;
+document.getElementById("am").innerText = "₹ " + am;
+
+document.getElementById("qr").src =
+  `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upi)}`;
+
+function openApp() {
+  location.href = upi;
+}
+</script>
+
+</body>
+</html>
