@@ -83,34 +83,40 @@
 </div>
 
 <script>
-/* ---------- CONFIG ---------- */
+/* -------- CONFIG -------- */
 const DEFAULT_UPI = "6301313335@mbk";
 const WHATSAPP_NO = "916301313335";
-/* ---------------------------- */
+/* ------------------------ */
 
-// Supported URL formats:
-// 1) #/pay/500                    → default UPI
-// 2) #/pay/custom@upi/500         → custom UPI
+// Expected formats:
+// 1) #/pay/500
+// 2) #/pay/custom@upi/500
 
-const parts = location.hash.split("/");
-
-// parts[0] = #
-// parts[1] = pay
-// parts[2] = amount OR upi
-// parts[3] = amount (if custom upi)
+const rawParts = location.hash.split("/").filter(Boolean);
+const parts = rawParts.map(p => decodeURIComponent(p));
 
 let upi = DEFAULT_UPI;
 let amount = "0";
 
-if (parts.length === 3) {
-  // #/pay/500
-  amount = parts[2];
-} else if (parts.length >= 4) {
-  // #/pay/upi-id/500
-  if (parts[2].includes("@")) {
-    upi = parts[2];
-    amount = parts[3];
+// parts example:
+// ["pay","500"]
+// ["pay","custom@upi","500"]
+
+if (parts.length === 2 && parts[0] === "pay") {
+  // default UPI
+  amount = parts[1];
+} 
+else if (parts.length === 3 && parts[0] === "pay") {
+  // custom UPI
+  if (parts[1].includes("@")) {
+    upi = parts[1];
+    amount = parts[2];
   }
+}
+
+// Safety: never show 0 accidentally
+if (!amount || isNaN(amount)) {
+  amount = "0";
 }
 
 // UI
@@ -128,7 +134,7 @@ document.getElementById("qr").src =
 // Pay Now
 document.getElementById("payNow").href = upiLink;
 
-// WhatsApp message (no UPI ID)
+// WhatsApp message
 document.getElementById("wa").href =
   "https://wa.me/" + WHATSAPP_NO + "?text=" +
   encodeURIComponent(
