@@ -88,11 +88,11 @@ button{
   <div class="card">
     <h2>Generate Payment Link</h2>
 
-    <!-- UPI ID FIRST -->
+    <!-- UPI ID -->
     <label>UPI ID</label>
     <input id="upi" type="text" placeholder="6301313335@mbk">
 
-    <!-- AMOUNT -->
+    <!-- Amount -->
     <label>Amount (₹)</label>
     <input id="amount" type="number" placeholder="Enter amount">
 
@@ -124,15 +124,20 @@ function generate(){
     return;
   }
 
-  // If UPI ID is empty → use default
-  const upi = upiInput === "" ? DEFAULT_UPI : upiInput;
-
   const base =
     location.origin +
     location.pathname.replace("index.html","");
 
-  generatedLink =
-    `${base}pay.html?am=${encodeURIComponent(amount)}`;
+  // 🔥 CORE LOGIC
+  if (upiInput === "") {
+    // Default UPI → clean link
+    generatedLink =
+      `${base}pay.html#/pay/${encodeURIComponent(amount)}`;
+  } else {
+    // Custom UPI → include UPI in URL
+    generatedLink =
+      `${base}pay.html#/pay/${encodeURIComponent(upiInput)}/${encodeURIComponent(amount)}`;
+  }
 
   document.getElementById("url").innerText = generatedLink;
   document.getElementById("result").style.display = "block";
