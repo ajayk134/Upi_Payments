@@ -1,158 +1,160 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Secure UPI Payment</title>
-
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Pay — ADP | Always Deliver Pass</title>
 <style>
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: #f2f3f5;
-  margin: 0;
-}
-
-.container {
-  max-width: 420px;
-  margin: auto;
-  padding: 18px;
-}
-
-.card {
-  background: #fff;
-  border-radius: 18px;
-  padding: 22px;
-  text-align: center;
-  box-shadow: 0 12px 30px rgba(0,0,0,.12);
-}
-
-.qr {
-  width: 240px;
-  height: 240px;
-  margin-bottom: 12px;
-}
-
-.label {
-  color: #777;
-  font-size: 14px;
-}
-
-.upi-id {
-  font-weight: 600;
-  font-size: 16px;
-  margin-top: 4px;
-}
-
-.amount {
-  font-size: 34px;
-  font-weight: 800;
-  margin: 8px 0;
-}
-
-.apps {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 18px;
-}
-
-.app {
-  width: 64px;
-  cursor: pointer;
-}
-
-.app img {
-  width: 100%;
-  display: block;
-}
-
-.whatsapp {
-  margin-top: 20px;
-  background: #25D366;
-  color: #fff;
-  padding: 14px;
-  border-radius: 12px;
-  font-weight: 600;
-  text-decoration: none;
-  display: block;
-}
-
-.footer {
-  text-align: center;
-  font-size: 14px;
-  font-weight: 700;
-  margin-top: 16px;
-}
+  :root{
+    --card-bg:#fff;
+    --page-bg:#f2f3f5;
+    --muted:#7a7a7a;
+    --accent:#25D366;
+  }
+  html,body{height:100%;margin:0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+  body{background:var(--page-bg);display:flex;align-items:flex-start;justify-content:center;padding:22px 12px;}
+  .wrap{width:100%;max-width:440px;}
+  .card{
+    background:var(--card-bg);
+    border-radius:20px;
+    padding:20px;
+    box-shadow:0 16px 36px rgba(10,10,20,.08);
+    text-align:center;
+    position:relative;
+  }
+  img.qr{width:260px;height:260px;border-radius:10px;object-fit:contain;display:block;margin:0 auto 12px;}
+  .label{color:var(--muted);font-size:14px}
+  .upi-id{font-weight:700;margin-top:6px;font-size:16px}
+  .amount-label{color:var(--muted);margin-top:14px;font-size:14px}
+  .amount{font-size:36px;font-weight:800;margin-top:6px}
+  .apps{display:flex;gap:10px;justify-content:space-between;margin-top:18px;padding:0 6px;}
+  .app-btn{width:64px;height:64px;border-radius:8px;background:#fff;border:1px solid #eee;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.04);user-select:none;}
+  .app-btn:active{transform:translateY(1px)}
+  .app-img{width:44px;height:44px;display:block}
+  .wa-btn{display:block;margin:18px auto 6px;padding:12px 14px;background:var(--accent);color:#fff;border-radius:12px;text-decoration:none;font-weight:700;max-width:360px;box-shadow:0 8px 20px rgba(37,211,102,.18);}
+  .wa-btn:active{transform:translateY(1px)}
+  .footer{margin-top:14px;text-align:center;font-weight:700;color:#111}
+  /* ensure no overlap and icons clickable */
+  .card, .apps, .wa-btn {position:relative; z-index:1;}
 </style>
 </head>
-
 <body>
+  <div class="wrap">
+    <div class="card" id="card">
+      <img id="qr" class="qr" alt="QR code" src="" />
+      <div class="label">You are paying</div>
+      <div id="pa" class="upi-id">—</div>
 
-<div class="container">
-  <div class="card">
+      <div class="amount-label">Amount</div>
+      <div id="am" class="amount">₹ 0</div>
 
-    <img id="qr" class="qr" alt="UPI QR Code">
-
-    <div class="label">You are paying</div>
-    <div id="pa" class="upi-id"></div>
-
-    <div class="label" style="margin-top:10px;">Amount</div>
-    <div id="am" class="amount"></div>
-
-    <!-- UPI APPS (ONLY UPI OPENS HERE) -->
-    <div class="apps">
-      <div class="app" onclick="openUPI()">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_Pay_Logo.svg" alt="Google Pay">
+      <div class="apps" id="apps">
+        <!-- Buttons will be created by JS with embedded SVG icons -->
       </div>
-      <div class="app" onclick="openUPI()">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/PhonePe_Logo.svg" alt="PhonePe">
-      </div>
-      <div class="app" onclick="openUPI()">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/5/55/Paytm_logo.png" alt="Paytm">
-      </div>
-      <div class="app" onclick="openUPI()">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/9/9d/BHIM_Logo.png" alt="BHIM">
-      </div>
+
+      <a id="wa" class="wa-btn" target="_blank" rel="noopener noreferrer">💬 Paid? Confirm on WhatsApp</a>
     </div>
 
-    <!-- WHATSAPP CONFIRMATION -->
-    <a id="wa" class="whatsapp" target="_blank">
-      💬 Paid? Confirm on WhatsApp
-    </a>
-
+    <div class="footer">ADP | Always Deliver Pass</div>
   </div>
-
-  <!-- FOOTER (ONLY BRAND) -->
-  <div class="footer">
-    ADP | Always Deliver Pass
-  </div>
-</div>
 
 <script>
+/* --- read params --- */
 const params = new URLSearchParams(location.search);
-const pa = params.get("pa");
-const am = params.get("am");
-const tn = params.get("tn") || "";
+const pa = params.get('pa') || '';
+const am = params.get('am') || '0';
+const tn = params.get('tn') || '';
 
-const upiLink =
-  `upi://pay?pa=${pa}&am=${am}&tn=${encodeURIComponent(tn)}&cu=INR`;
+const upiLink = `upi://pay?pa=${encodeURIComponent(pa)}&am=${encodeURIComponent(am)}&tn=${encodeURIComponent(tn)}&cu=INR`;
 
-document.getElementById("pa").innerText = pa;
-document.getElementById("am").innerText = "₹ " + am;
+/* set UI */
+document.getElementById('pa').textContent = pa || '—';
+document.getElementById('am').textContent = '₹ ' + am;
+document.getElementById('qr').src = 'https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=' + encodeURIComponent(upiLink);
 
-document.getElementById("qr").src =
-  `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiLink)}`;
+/* WhatsApp link (open chat with your number) */
+const wa = document.getElementById('wa');
+wa.href = 'https://wa.me/916301313335?text=' + encodeURIComponent(`Hi, I have completed the payment of ₹${am} to ${pa}`);
 
-// WhatsApp ONLY here
-document.getElementById("wa").href =
-  `https://wa.me/916301313335?text=${encodeURIComponent(
-    "Hi, I have completed the payment of ₹" + am + " to " + pa
-  )}`;
+/* Inline SVG icons as data URLs (guaranteed to load) */
+const icons = [
+  {
+    name: 'Google Pay',
+    svg: `data:image/svg+xml;utf8,${encodeURIComponent(
+`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'>
+  <rect rx='12' width='120' height='120' fill='#fff'/>
+  <g transform='translate(8,12)'>
+    <rect width='40' height='96' rx='8' fill='#000' />
+    <text x='52' y='38' font-family='sans-serif' font-size='20' fill='#5f6368'>G</text>
+    <text x='52' y='74' font-family='sans-serif' font-size='20' fill='#4285F4'>Pay</text>
+  </g>
+</svg>`)}`
+  },
+  {
+    name: 'PhonePe',
+    svg: `data:image/svg+xml;utf8,${encodeURIComponent(
+`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'>
+  <rect rx='12' width='120' height='120' fill='#4b0082'/>
+  <text x='60' y='68' font-family='sans-serif' font-size='26' fill='#fff' text-anchor='middle'>PhonePe</text>
+</svg>`)}`
+  },
+  {
+    name: 'Paytm',
+    svg: `data:image/svg+xml;utf8,${encodeURIComponent(
+`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'>
+  <rect rx='12' width='120' height='120' fill='#0033a0'/>
+  <text x='60' y='68' font-family='sans-serif' font-size='26' fill='#fff' text-anchor='middle'>Paytm</text>
+</svg>`)}`
+  },
+  {
+    name: 'BHIM',
+    svg: `data:image/svg+xml;utf8,${encodeURIComponent(
+`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'>
+  <rect rx='12' width='120' height='120' fill='#00a65a'/>
+  <text x='60' y='68' font-family='sans-serif' font-size='26' fill='#fff' text-anchor='middle'>BHIM</text>
+</svg>`)}`
+  }
+];
 
-// UPI apps ONLY here
-function openUPI() {
-  window.location.href = upiLink;
-}
+/* build app buttons and attach handlers */
+const appsContainer = document.getElementById('apps');
+
+icons.forEach((it, idx) => {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'app-btn';
+  btn.setAttribute('aria-label', it.name);
+  // stop propagation so WA button doesn't get this click
+  btn.addEventListener('click', function(evt){
+    evt.stopPropagation();
+    evt.preventDefault();
+    // Try opening UPI link
+    // Use location.assign because some browsers need it
+    location.assign(upiLink);
+    // as fallback: also open intent for Android (no harm)
+    setTimeout(() => {
+      // Android Intent fallback — won’t harm iOS/devices that ignore it
+      const intent = `intent://pay?pa=${encodeURIComponent(pa)}&am=${encodeURIComponent(am)}&tn=${encodeURIComponent(tn)}#Intent;scheme=upi;package=;end`;
+      // Only attempt fallback after small delay
+      // window.location = intent; // commented out to avoid aggressive fallback — remove if you need
+    }, 600);
+  }, {passive:false});
+
+  // image
+  const img = document.createElement('img');
+  img.className = 'app-img';
+  img.src = it.svg;
+  img.alt = it.name;
+
+  btn.appendChild(img);
+  appsContainer.appendChild(btn);
+});
+
+/* ensure WA button won't capture app clicks by mistake */
+wa.addEventListener('click', function(e){
+  // allow normal WA behaviour, but prevent propagation
+  e.stopPropagation();
+});
 </script>
-
 </body>
 </html>
