@@ -47,7 +47,7 @@ body{
 .apps{
   display:flex;
   justify-content:space-between;
-  gap:12px;
+  gap:14px;
   margin-bottom:22px;
 }
 
@@ -69,7 +69,7 @@ body{
   height:42px;
 }
 
-/* MAIN CTA */
+/* PAY NOW */
 .pay-btn{
   display:block;
   padding:18px;
@@ -82,15 +82,23 @@ body{
   margin-bottom:14px;
 }
 
-/* WHATSAPP */
+/* WHATSAPP (DISABLED INITIALLY) */
 .whatsapp{
   display:block;
   padding:15px;
   border-radius:16px;
-  background:#25D366;
+  background:#c9c9c9;
   color:#fff;
   font-weight:700;
   text-decoration:none;
+  pointer-events:none;
+  opacity:.6;
+}
+
+.whatsapp.active{
+  background:#25D366;
+  pointer-events:auto;
+  opacity:1;
 }
 
 .footer{
@@ -111,7 +119,7 @@ body{
     <div class="small">Amount to Pay</div>
     <div id="am" class="amount">₹ 0</div>
 
-    <!-- APP BUTTONS (NOT LINKS) -->
+    <!-- APP BUTTONS -->
     <div class="apps">
       <button class="app-btn" onclick="payPhonePe()">
         <img src="icons/phonepe.png" alt="PhonePe">
@@ -119,18 +127,12 @@ body{
       <button class="app-btn" onclick="payPaytm()">
         <img src="icons/paytm.png" alt="Paytm">
       </button>
-      <button class="app-btn" onclick="payCred()">
-        <img src="icons/cred.png" alt="CRED">
-      </button>
-      <button class="app-btn" onclick="payAmazon()">
-        <img src="icons/amazonpay.png" alt="Amazon Pay">
-      </button>
     </div>
 
     <!-- PAY NOW -->
     <a id="payNow" class="pay-btn">💳 Pay Now</a>
 
-    <!-- WHATSAPP CONFIRM -->
+    <!-- WHATSAPP (ENABLED AFTER PAYMENT ATTEMPT) -->
     <a id="wa" class="whatsapp">💬 Paid? Confirm on WhatsApp</a>
 
   </div>
@@ -143,55 +145,57 @@ body{
 const UPI_ID = "6301313335@mbk";
 const WHATSAPP_NO = "916301313335";
 
+/* PARAMS */
 const p = new URLSearchParams(location.search);
 const am = p.get("am") || "0";
 const tn = p.get("tn") || "";
 
+/* UI */
 document.getElementById("am").textContent = "₹ " + am;
 
+/* UPI LINK */
 const upi =
   `upi://pay?pa=${encodeURIComponent(UPI_ID)}&am=${encodeURIComponent(am)}&tn=${encodeURIComponent(tn)}&cu=INR`;
 
-// QR
+/* QR */
 document.getElementById("qr").src =
   "https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=" +
   encodeURIComponent(upi);
 
-// Pay Now
+/* PAY NOW */
 document.getElementById("payNow").href = upi;
 
-// WhatsApp (ONLY here)
-document.getElementById("wa").href =
-  `https://wa.me/${WHATSAPP_NO}?text=` +
-  encodeURIComponent(`Hi, I have completed the payment of ₹${am}.`);
-
-// Platform
+/* PLATFORM */
 const isAndroid = /Android/i.test(navigator.userAgent);
 
-// BUTTON HANDLERS
+/* TRACK PAYMENT ATTEMPT */
+let paymentAttempted = false;
+
+/* APP HANDLERS */
 function payPhonePe(){
+  paymentAttempted = true;
   window.location.href = isAndroid
     ? `phonepe://upi/pay?pa=${encodeURIComponent(UPI_ID)}&am=${encodeURIComponent(am)}&tn=${encodeURIComponent(tn)}&cu=INR`
     : upi;
 }
 
 function payPaytm(){
+  paymentAttempted = true;
   window.location.href = isAndroid
     ? `paytmmp://upi/pay?pa=${encodeURIComponent(UPI_ID)}&am=${encodeURIComponent(am)}&tn=${encodeURIComponent(tn)}&cu=INR`
     : upi;
 }
 
-function payCred(){
-  window.location.href = isAndroid
-    ? `credpay://upi/pay?pa=${encodeURIComponent(UPI_ID)}&am=${encodeURIComponent(am)}&tn=${encodeURIComponent(tn)}&cu=INR`
-    : upi;
-}
-
-function payAmazon(){
-  window.location.href = isAndroid
-    ? `amazonpay://upi/pay?pa=${encodeURIComponent(UPI_ID)}&am=${encodeURIComponent(am)}&tn=${encodeURIComponent(tn)}&cu=INR`
-    : upi;
-}
+/* ENABLE WHATSAPP AFTER RETURN */
+document.addEventListener("visibilitychange", () => {
+  if (paymentAttempted && document.visibilityState === "visible") {
+    const wa = document.getElementById("wa");
+    wa.classList.add("active");
+    wa.href =
+      `https://wa.me/${WHATSAPP_NO}?text=` +
+      encodeURIComponent(`Hi, I have completed the payment of ₹${am}.`);
+  }
+});
 </script>
 
 </body>
