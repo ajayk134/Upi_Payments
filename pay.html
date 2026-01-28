@@ -11,31 +11,38 @@
     --muted:#7a7a7a;
     --accent:#25D366;
   }
+  *{box-sizing:border-box}
   html,body{height:100%;margin:0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,"Helvetica Neue",Arial;}
   body{background:var(--page-bg);display:flex;align-items:flex-start;justify-content:center;padding:22px 12px;}
   .wrap{width:100%;max-width:440px;}
   .card{
     background:var(--card-bg);
     border-radius:20px;
-    padding:20px;
-    box-shadow:0 16px 36px rgba(10,10,20,.08);
+    padding:22px;
+    box-shadow:0 20px 40px rgba(10,10,20,.08);
     text-align:center;
-    position:relative;
   }
-  img.qr{width:260px;height:260px;border-radius:10px;object-fit:contain;display:block;margin:0 auto 12px;}
+  img.qr{width:260px;height:260px;border-radius:12px;object-fit:contain;display:block;margin:0 auto 14px;}
   .label{color:var(--muted);font-size:14px}
   .upi-id{font-weight:700;margin-top:6px;font-size:16px}
   .amount-label{color:var(--muted);margin-top:14px;font-size:14px}
   .amount{font-size:36px;font-weight:800;margin-top:6px}
-  .apps{display:flex;gap:10px;justify-content:space-between;margin-top:18px;padding:0 6px;}
-  .app-btn{width:64px;height:64px;border-radius:8px;background:#fff;border:1px solid #eee;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.04);user-select:none;}
-  .app-btn:active{transform:translateY(1px)}
-  .app-img{width:44px;height:44px;display:block}
-  .wa-btn{display:block;margin:18px auto 6px;padding:12px 14px;background:var(--accent);color:#fff;border-radius:12px;text-decoration:none;font-weight:700;max-width:360px;box-shadow:0 8px 20px rgba(37,211,102,.18);}
+  /* icons row */
+  .apps-row{display:flex;gap:12px;justify-content:space-between;margin-top:18px;padding:0 6px;z-index:20;position:relative;}
+  .app-link{
+    width:72px;height:72px;border-radius:12px;background:#fff;border:1px solid #f0f0f0;display:inline-flex;align-items:center;justify-content:center;
+    box-shadow:0 8px 18px rgba(0,0,0,.05);text-decoration:none;color:inherit;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .app-svg{width:48px;height:48px;display:block}
+  .app-label{font-size:12px;margin-top:6px;color:var(--muted)}
+  /* big WhatsApp CTA below icons (separated) */
+  .wa-wrap{margin-top:18px}
+  .wa-btn{display:block;margin:0 auto;padding:13px 18px;background:var(--accent);color:#fff;border-radius:14px;text-decoration:none;font-weight:800;max-width:380px;box-shadow:0 12px 28px rgba(37,211,102,.18);}
   .wa-btn:active{transform:translateY(1px)}
-  .footer{margin-top:14px;text-align:center;font-weight:700;color:#111}
-  /* ensure no overlap and icons clickable */
-  .card, .apps, .wa-btn {position:relative; z-index:1;}
+  .footer{margin-top:20px;text-align:center;font-weight:700;color:#111}
+  /* ensure icons clickable on top */
+  .card,.apps-row,.app-link{position:relative}
 </style>
 </head>
 <body>
@@ -48,113 +55,81 @@
       <div class="amount-label">Amount</div>
       <div id="am" class="amount">₹ 0</div>
 
-      <div class="apps" id="apps">
-        <!-- Buttons will be created by JS with embedded SVG icons -->
+      <!-- ICONS -->
+      <div class="apps-row" id="appsRow" aria-hidden="false">
+        <!-- Links inserted by JS -->
       </div>
 
-      <a id="wa" class="wa-btn" target="_blank" rel="noopener noreferrer">💬 Paid? Confirm on WhatsApp</a>
+      <!-- WhatsApp CTA (separate, below icons) -->
+      <div class="wa-wrap">
+        <a id="wa" class="wa-btn" target="_blank" rel="noopener noreferrer">💬 Paid? Confirm on WhatsApp</a>
+      </div>
     </div>
 
     <div class="footer">ADP | Always Deliver Pass</div>
   </div>
 
 <script>
-/* --- read params --- */
+/* read params */
 const params = new URLSearchParams(location.search);
 const pa = params.get('pa') || '';
 const am = params.get('am') || '0';
 const tn = params.get('tn') || '';
 
+/* build UPI deep link */
 const upiLink = `upi://pay?pa=${encodeURIComponent(pa)}&am=${encodeURIComponent(am)}&tn=${encodeURIComponent(tn)}&cu=INR`;
 
-/* set UI */
+/* populate UI */
 document.getElementById('pa').textContent = pa || '—';
 document.getElementById('am').textContent = '₹ ' + am;
 document.getElementById('qr').src = 'https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=' + encodeURIComponent(upiLink);
 
-/* WhatsApp link (open chat with your number) */
+/* WhatsApp link */
 const wa = document.getElementById('wa');
 wa.href = 'https://wa.me/916301313335?text=' + encodeURIComponent(`Hi, I have completed the payment of ₹${am} to ${pa}`);
 
-/* Inline SVG icons as data URLs (guaranteed to load) */
-const icons = [
-  {
-    name: 'Google Pay',
-    svg: `data:image/svg+xml;utf8,${encodeURIComponent(
-`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'>
-  <rect rx='12' width='120' height='120' fill='#fff'/>
-  <g transform='translate(8,12)'>
-    <rect width='40' height='96' rx='8' fill='#000' />
-    <text x='52' y='38' font-family='sans-serif' font-size='20' fill='#5f6368'>G</text>
-    <text x='52' y='74' font-family='sans-serif' font-size='20' fill='#4285F4'>Pay</text>
-  </g>
-</svg>`)}`
-  },
-  {
-    name: 'PhonePe',
-    svg: `data:image/svg+xml;utf8,${encodeURIComponent(
-`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'>
-  <rect rx='12' width='120' height='120' fill='#4b0082'/>
-  <text x='60' y='68' font-family='sans-serif' font-size='26' fill='#fff' text-anchor='middle'>PhonePe</text>
-</svg>`)}`
-  },
-  {
-    name: 'Paytm',
-    svg: `data:image/svg+xml;utf8,${encodeURIComponent(
-`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'>
-  <rect rx='12' width='120' height='120' fill='#0033a0'/>
-  <text x='60' y='68' font-family='sans-serif' font-size='26' fill='#fff' text-anchor='middle'>Paytm</text>
-</svg>`)}`
-  },
-  {
-    name: 'BHIM',
-    svg: `data:image/svg+xml;utf8,${encodeURIComponent(
-`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'>
-  <rect rx='12' width='120' height='120' fill='#00a65a'/>
-  <text x='60' y='68' font-family='sans-serif' font-size='26' fill='#fff' text-anchor='middle'>BHIM</text>
-</svg>`)}`
-  }
+/* Inline brand-like SVGs (simple, guaranteed to load) */
+const appIcons = [
+  { name: 'Google Pay', svg: `<svg class="app-svg" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect rx="6" width="48" height="48" fill="#fff"/><g transform="translate(4,6)"><rect rx="4" width="12" height="36" fill="#000"/><text x="18" y="22" font-family="sans-serif" font-size="10" fill="#5f6368">G</text><text x="18" y="32" font-family="sans-serif" font-size="8" fill="#4285F4">Pay</text></g></svg>`},
+  { name: 'PhonePe', svg: `<svg class="app-svg" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect rx="6" width="48" height="48" fill="#6f2ca8"/><text x="24" y="30" font-family="sans-serif" font-size="10" fill="#fff" text-anchor="middle">PhonePe</text></svg>`},
+  { name: 'Paytm', svg: `<svg class="app-svg" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect rx="6" width="48" height="48" fill="#0033a0"/><text x="24" y="30" font-family="sans-serif" font-size="10" fill="#fff" text-anchor="middle">Paytm</text></svg>`},
+  { name: 'BHIM', svg: `<svg class="app-svg" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect rx="6" width="48" height="48" fill="#00a65a"/><text x="24" y="30" font-family="sans-serif" font-size="10" fill="#fff" text-anchor="middle">BHIM</text></svg>`}
 ];
 
-/* build app buttons and attach handlers */
-const appsContainer = document.getElementById('apps');
+/* create anchors for each app; set href to UPI link; stop propagation so WA won't intercept */
+const appsRow = document.getElementById('appsRow');
 
-icons.forEach((it, idx) => {
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.className = 'app-btn';
-  btn.setAttribute('aria-label', it.name);
-  // stop propagation so WA button doesn't get this click
-  btn.addEventListener('click', function(evt){
-    evt.stopPropagation();
-    evt.preventDefault();
-    // Try opening UPI link
-    // Use location.assign because some browsers need it
-    location.assign(upiLink);
-    // as fallback: also open intent for Android (no harm)
-    setTimeout(() => {
-      // Android Intent fallback — won’t harm iOS/devices that ignore it
-      const intent = `intent://pay?pa=${encodeURIComponent(pa)}&am=${encodeURIComponent(am)}&tn=${encodeURIComponent(tn)}#Intent;scheme=upi;package=;end`;
-      // Only attempt fallback after small delay
-      // window.location = intent; // commented out to avoid aggressive fallback — remove if you need
-    }, 600);
+appIcons.forEach(item => {
+  const a = document.createElement('a');
+  a.className = 'app-link';
+  a.href = upiLink;                // primary deep link
+  a.target = '_self';             // open in same window (helps mobile open app)
+  a.title = item.name;
+  a.rel = 'noopener noreferrer';
+
+  // Prevent parent click propagation
+  a.addEventListener('click', function(e){
+    e.stopPropagation(); // important: prevents other handlers from firing
+    // mobile deep link: first try location.assign (some browsers prefer)
+    // Setting href + target=_self is usually enough; we also call assign for robustness
+    try { location.assign(upiLink); } catch(err){}
+    // small fallback: setTimeout to allow app open on some devices
+    setTimeout(()=>{ /* nothing */ }, 400);
   }, {passive:false});
 
-  // image
-  const img = document.createElement('img');
-  img.className = 'app-img';
-  img.src = it.svg;
-  img.alt = it.name;
-
-  btn.appendChild(img);
-  appsContainer.appendChild(btn);
+  // insert the inline svg
+  a.innerHTML = item.svg;
+  appsRow.appendChild(a);
 });
 
-/* ensure WA button won't capture app clicks by mistake */
-wa.addEventListener('click', function(e){
-  // allow normal WA behaviour, but prevent propagation
+/* Prevent card-level or document-level handlers from hijacking clicks (safety) */
+document.getElementById('card').addEventListener('click', function(e){
+  // If user clicked outside icons, do nothing (prevents accidental overrides)
+  // This handler intentionally does not redirect to WhatsApp.
   e.stopPropagation();
-});
+}, {passive:true});
+
+document.addEventListener('click', function(){}, {passive:true});
 </script>
 </body>
 </html>
