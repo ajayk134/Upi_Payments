@@ -46,31 +46,18 @@ body {
 .amount {
   font-size: 36px;
   font-weight: 800;
-  margin: 10px 0 18px;
+  margin: 10px 0 20px;
 }
 
-.apps {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.apps a {
-  width: 72px;
-  height: 72px;
-  background: #fff;
-  border-radius: 14px;
-  border: 1px solid #eee;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.pay-btn {
+  display: block;
+  background: #000;
+  color: #fff;
+  font-weight: 800;
+  padding: 16px;
+  border-radius: 16px;
   text-decoration: none;
-}
-
-.apps img {
-  width: 44px;
-  height: 44px;
+  margin-bottom: 14px;
 }
 
 .whatsapp {
@@ -104,15 +91,10 @@ body {
     <div class="label">Amount</div>
     <div id="am" class="amount"></div>
 
-    <!-- REAL ICONS, PURE UPI LINKS -->
-    <div class="apps">
-      <a id="upiLink1"><img src="icons/gpay.png" alt="Google Pay"></a>
-      <a id="upiLink2"><img src="icons/phonepe.png" alt="PhonePe"></a>
-      <a id="upiLink3"><img src="icons/paytm.png" alt="Paytm"></a>
-      <a id="upiLink4"><img src="icons/bhim.png" alt="BHIM"></a>
-    </div>
+    <!-- ONE PAY BUTTON -->
+    <a id="pay" class="pay-btn">💳 Pay Now</a>
 
-    <!-- WHATSAPP ONLY HERE -->
+    <!-- WHATSAPP CONFIRM -->
     <a id="wa" class="whatsapp">💬 Paid? Confirm on WhatsApp</a>
 
   </div>
@@ -135,12 +117,10 @@ document.getElementById("qr").src =
   "https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=" +
   encodeURIComponent(upi);
 
-// All icons → UPI ONLY
-["upiLink1","upiLink2","upiLink3","upiLink4"].forEach(id => {
-  document.getElementById(id).href = upi;
-});
+// Pay button → UPI
+document.getElementById("pay").href = upi;
 
-// WhatsApp ONLY here
+// WhatsApp only here
 document.getElementById("wa").href =
   "https://wa.me/916301313335?text=" +
   encodeURIComponent(`Hi, I have completed the payment of ₹${am} to ${pa}`);
