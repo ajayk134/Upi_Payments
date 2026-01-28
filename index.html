@@ -30,8 +30,7 @@ label{
   font-size:14px;
   color:#555;
 }
-input[type="number"],
-input[type="text"]{
+input{
   width:100%;
   padding:14px;
   margin-top:8px;
@@ -39,13 +38,6 @@ input[type="text"]{
   border-radius:12px;
   border:1px solid #ddd;
   font-size:16px;
-}
-.checkbox{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  margin-bottom:14px;
-  font-size:14px;
 }
 button{
   width:100%;
@@ -68,16 +60,19 @@ button{
   border-radius:10px;
   font-size:13px;
   word-break:break-all;
-  margin-bottom:10px;
+  margin-bottom:12px;
+}
+.actions{
+  display:flex;
+  gap:10px;
 }
 .copy-btn{
+  flex:1;
   background:#25D366;
-  color:#fff;
-  border:none;
-  padding:12px;
-  border-radius:12px;
-  font-weight:700;
-  width:100%;
+}
+.open-btn{
+  flex:1;
+  background:#007aff;
 }
 .footer{
   margin-top:18px;
@@ -99,23 +94,18 @@ button{
     <label>Note (optional)</label>
     <input id="note" type="text" placeholder="Payment note">
 
-    <div class="checkbox">
-      <input type="checkbox" id="useDefault" checked>
-      <label for="useDefault">Use default UPI ID (6301313335@mbk)</label>
-    </div>
-
-    <input
-      id="upi"
-      type="text"
-      placeholder="Enter UPI ID (optional)"
-      disabled
-    >
+    <label>UPI ID (leave empty to use default)</label>
+    <input id="upi" type="text" placeholder="6301313335@mbk">
 
     <button onclick="generate()">Generate Link</button>
 
     <div class="result" id="result">
       <div class="url-box" id="url"></div>
-      <button class="copy-btn" onclick="copyLink()">📋 Copy Link</button>
+
+      <div class="actions">
+        <button class="copy-btn" onclick="copyLink()">📋 Copy</button>
+        <button class="open-btn" onclick="openLink()">🔗 Open</button>
+      </div>
     </div>
   </div>
 
@@ -124,44 +114,39 @@ button{
 
 <script>
 const DEFAULT_UPI = "6301313335@mbk";
-
-const checkbox = document.getElementById("useDefault");
-const upiInput = document.getElementById("upi");
-
-checkbox.addEventListener("change", () => {
-  upiInput.disabled = checkbox.checked;
-  if (checkbox.checked) upiInput.value = "";
-});
+let generatedLink = "";
 
 function generate(){
   const amount = document.getElementById("amount").value;
   const note = document.getElementById("note").value || "";
-  const upi = checkbox.checked
-    ? DEFAULT_UPI
-    : (upiInput.value || DEFAULT_UPI);
+  const upiInput = document.getElementById("upi").value.trim();
 
   if(!amount){
     alert("Please enter amount");
     return;
   }
 
-  // Relative path → works on GitHub Pages & Netlify
+  // If empty → use default UPI
+  const upi = upiInput === "" ? DEFAULT_UPI : upiInput;
+
   const base =
     location.origin +
     location.pathname.replace("index.html","");
 
-  const link =
+  generatedLink =
     `${base}pay.html?am=${encodeURIComponent(amount)}&tn=${encodeURIComponent(note)}`;
 
-  document.getElementById("url").innerText = link;
+  document.getElementById("url").innerText = generatedLink;
   document.getElementById("result").style.display = "block";
-
-  window.generatedLink = link;
 }
 
 function copyLink(){
-  navigator.clipboard.writeText(window.generatedLink);
+  navigator.clipboard.writeText(generatedLink);
   alert("Payment link copied");
+}
+
+function openLink(){
+  window.open(generatedLink, "_blank");
 }
 </script>
 
