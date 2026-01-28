@@ -38,37 +38,16 @@
     font-weight: 900;
     margin: 8px 0 18px;
   }
-  .apps {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 18px;
-    padding: 0 6px;
-  }
-  .apps a {
-    width: 72px;
-    height: 72px;
-    border-radius: 14px;
-    background: #fff;
-    border: 1px solid #eee;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-  }
-  .apps img {
-    width: 40px;
-    height: 40px;
-  }
   .pay-now {
     margin-top: 18px;
     background: #000;
     color: #fff;
     font-weight: 800;
-    padding: 16px;
-    border-radius: 16px;
+    padding: 18px;
+    border-radius: 18px;
     text-decoration: none;
     display: block;
-    font-size: 18px;
+    font-size: 20px;
   }
   .whatsapp {
     margin-top: 16px;
@@ -96,17 +75,7 @@
     <div class="label">Amount to Pay</div>
     <div id="am" class="amount"></div>
 
-    <!-- ONLY PHONEPE & PAYTM -->
-    <div class="apps">
-      <a id="phonepe" title="PhonePe">
-        <img src="icons/phonepe.png">
-      </a>
-      <a id="paytm" title="Paytm">
-        <img src="icons/paytm.png">
-      </a>
-    </div>
-
-    <!-- PAY NOW (UPI CHOOSER) -->
+    <!-- ONLY PAY NOW -->
     <a id="payNow" class="pay-now">💳 Pay Now</a>
 
     <!-- WHATSAPP CONFIRM -->
@@ -127,30 +96,18 @@
   const upi =
     `upi://pay?pa=${encodeURIComponent(UPI_ID)}&am=${encodeURIComponent(am)}&tn=${encodeURIComponent(tn)}&cu=INR`;
 
-  // QR
+  // QR code
   document.getElementById("qr").src =
     "https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=" +
     encodeURIComponent(upi);
 
-  // Pay Now (chooser / default app)
+  // Pay Now → UPI chooser / default app
   document.getElementById("payNow").href = upi;
 
-  // WhatsApp confirm (NO UPI ID)
+  // WhatsApp confirm (no UPI ID)
   document.getElementById("wa").href =
     "https://wa.me/916301313335?text=" +
     encodeURIComponent(`I have paid ₹${am}.`);
-
-  const isAndroid = /Android/i.test(navigator.userAgent);
-
-  // PhonePe
-  document.getElementById("phonepe").href = isAndroid
-    ? `phonepe://upi/pay?pa=${encodeURIComponent(UPI_ID)}&am=${encodeURIComponent(am)}&tn=${encodeURIComponent(tn)}&cu=INR`
-    : upi;
-
-  // Paytm
-  document.getElementById("paytm").href = isAndroid
-    ? `paytmmp://upi/pay?pa=${encodeURIComponent(UPI_ID)}&am=${encodeURIComponent(am)}&tn=${encodeURIComponent(tn)}&cu=INR`
-    : upi;
 </script>
 </body>
 </html>
