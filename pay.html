@@ -73,12 +73,9 @@
     <img id="qr" class="qr" alt="QR code">
 
     <div class="label">Amount to Pay</div>
-    <div id="am" class="amount"></div>
+    <div id="am" class="amount">₹ 0</div>
 
-    <!-- PAY NOW -->
     <a id="payNow" class="pay-now">💳 Pay Now</a>
-
-    <!-- WHATSAPP CONFIRM -->
     <a id="wa" class="whatsapp">💬 Paid? Confirm on WhatsApp</a>
   </div>
 
@@ -86,29 +83,57 @@
 </div>
 
 <script>
-  const p = new URLSearchParams(location.search);
-  const am = p.get("am") || "0";
-  const UPI_ID = "6301313335@mbk";
+/* ---------- CONFIG ---------- */
+const DEFAULT_UPI = "6301313335@mbk";
+const WHATSAPP_NO = "916301313335";
+/* ---------------------------- */
 
-  document.getElementById("am").textContent = "₹ " + am;
+// Supported URL formats:
+// 1) #/pay/500                    → default UPI
+// 2) #/pay/custom@upi/500         → custom UPI
 
-  const upi =
-    `upi://pay?pa=${encodeURIComponent(UPI_ID)}&am=${encodeURIComponent(am)}&cu=INR`;
+const parts = location.hash.split("/");
 
-  // QR code
-  document.getElementById("qr").src =
-    "https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=" +
-    encodeURIComponent(upi);
+// parts[0] = #
+// parts[1] = pay
+// parts[2] = amount OR upi
+// parts[3] = amount (if custom upi)
 
-  // Pay Now → UPI chooser / default app
-  document.getElementById("payNow").href = upi;
+let upi = DEFAULT_UPI;
+let amount = "0";
 
-  // WhatsApp message (clean & professional)
-  document.getElementById("wa").href =
-    "https://wa.me/916301313335?text=" +
-    encodeURIComponent(
-      `Hi 👋\nI’ve just completed the payment of ₹${am}.\nPlease confirm once you receive it 🙂`
-    );
+if (parts.length === 3) {
+  // #/pay/500
+  amount = parts[2];
+} else if (parts.length >= 4) {
+  // #/pay/upi-id/500
+  if (parts[2].includes("@")) {
+    upi = parts[2];
+    amount = parts[3];
+  }
+}
+
+// UI
+document.getElementById("am").textContent = "₹ " + amount;
+
+// Build UPI link
+const upiLink =
+  `upi://pay?pa=${encodeURIComponent(upi)}&am=${encodeURIComponent(amount)}&cu=INR`;
+
+// QR
+document.getElementById("qr").src =
+  "https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=" +
+  encodeURIComponent(upiLink);
+
+// Pay Now
+document.getElementById("payNow").href = upiLink;
+
+// WhatsApp message (no UPI ID)
+document.getElementById("wa").href =
+  "https://wa.me/" + WHATSAPP_NO + "?text=" +
+  encodeURIComponent(
+    `Hi 👋\nI’ve just completed the payment of ₹${amount}.\nPlease confirm once you receive it 🙂`
+  );
 </script>
 </body>
 </html>
