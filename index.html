@@ -3,81 +3,165 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Generate Payment Link</title>
+<title>Generate UPI Payment Link</title>
 
 <style>
 body{
   margin:0;
-  background:#f4f5f7;
+  background:#f5f6fa;
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial;
 }
-.box{
+.container{
   max-width:420px;
   margin:60px auto;
+  padding:20px;
+}
+.card{
   background:#fff;
+  border-radius:20px;
   padding:24px;
-  border-radius:18px;
-  box-shadow:0 18px 40px rgba(0,0,0,.1);
+  box-shadow:0 20px 40px rgba(0,0,0,.1);
 }
 h2{
   text-align:center;
   margin-bottom:20px;
 }
-input{
+label{
+  font-size:14px;
+  color:#555;
+}
+input[type="number"],
+input[type="text"]{
   width:100%;
   padding:14px;
-  margin-bottom:14px;
+  margin-top:8px;
+  margin-bottom:16px;
   border-radius:12px;
   border:1px solid #ddd;
   font-size:16px;
 }
+.checkbox{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:14px;
+  font-size:14px;
+}
 button{
   width:100%;
-  padding:15px;
+  padding:16px;
   border:none;
-  border-radius:14px;
+  border-radius:16px;
   background:#000;
   color:#fff;
-  font-size:17px;
-  font-weight:700;
+  font-size:18px;
+  font-weight:800;
+  cursor:pointer;
 }
-.link{
-  margin-top:14px;
+.result{
+  margin-top:20px;
+  display:none;
+}
+.url-box{
+  background:#f1f3f6;
+  padding:12px;
+  border-radius:10px;
   font-size:13px;
   word-break:break-all;
+  margin-bottom:10px;
+}
+.copy-btn{
+  background:#25D366;
+  color:#fff;
+  border:none;
+  padding:12px;
+  border-radius:12px;
+  font-weight:700;
+  width:100%;
+}
+.footer{
+  margin-top:18px;
+  text-align:center;
+  font-weight:800;
 }
 </style>
 </head>
 
 <body>
 
-<div class="box">
-  <h2>Generate Payment Link</h2>
+<div class="container">
+  <div class="card">
+    <h2>Generate Payment Link</h2>
 
-  <input id="amount" type="number" placeholder="Amount (₹)">
-  <input id="note" placeholder="Note (optional)">
+    <label>Amount (₹)</label>
+    <input id="amount" type="number" placeholder="Enter amount">
 
-  <button onclick="generate()">Generate Link</button>
+    <label>Note (optional)</label>
+    <input id="note" type="text" placeholder="Payment note">
 
-  <div class="link" id="out"></div>
+    <div class="checkbox">
+      <input type="checkbox" id="useDefault" checked>
+      <label for="useDefault">Use default UPI ID (6301313335@mbk)</label>
+    </div>
+
+    <input
+      id="upi"
+      type="text"
+      placeholder="Enter UPI ID (optional)"
+      disabled
+    >
+
+    <button onclick="generate()">Generate Link</button>
+
+    <div class="result" id="result">
+      <div class="url-box" id="url"></div>
+      <button class="copy-btn" onclick="copyLink()">📋 Copy Link</button>
+    </div>
+  </div>
+
+  <div class="footer">ADP | Always Deliver Pass</div>
 </div>
 
 <script>
+const DEFAULT_UPI = "6301313335@mbk";
+
+const checkbox = document.getElementById("useDefault");
+const upiInput = document.getElementById("upi");
+
+checkbox.addEventListener("change", () => {
+  upiInput.disabled = checkbox.checked;
+  if (checkbox.checked) upiInput.value = "";
+});
+
 function generate(){
   const amount = document.getElementById("amount").value;
   const note = document.getElementById("note").value || "";
+  const upi = checkbox.checked
+    ? DEFAULT_UPI
+    : (upiInput.value || DEFAULT_UPI);
 
   if(!amount){
-    alert("Enter amount");
+    alert("Please enter amount");
     return;
   }
 
-  // ✅ RELATIVE PATH (works on GitHub Pages)
-  const url =
-    `pay.html?am=${encodeURIComponent(amount)}&tn=${encodeURIComponent(note)}`;
+  // Relative path → works on GitHub Pages & Netlify
+  const base =
+    location.origin +
+    location.pathname.replace("index.html","");
 
-  document.getElementById("out").innerHTML =
-    `<b>Share this link:</b><br>${location.origin + location.pathname.replace("index.html","") + url}`;
+  const link =
+    `${base}pay.html?am=${encodeURIComponent(amount)}&tn=${encodeURIComponent(note)}`;
+
+  document.getElementById("url").innerText = link;
+  document.getElementById("result").style.display = "block";
+
+  window.generatedLink = link;
+}
+
+function copyLink(){
+  navigator.clipboard.writeText(window.generatedLink);
+  alert("Payment link copied");
 }
 </script>
 
