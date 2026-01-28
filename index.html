@@ -6,30 +6,39 @@
 <title>UPI Payment</title>
 
 <style>
+*{
+  box-sizing:border-box;
+}
+
 body{
   margin:0;
   background:#f5f6fa;
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial;
 }
+
 .container{
   max-width:420px;
   margin:60px auto;
   padding:20px;
 }
+
 .card{
   background:#fff;
-  border-radius:20px;
+  border-radius:22px;
   padding:24px;
-  box-shadow:0 20px 40px rgba(0,0,0,.1);
+  box-shadow:0 20px 40px rgba(0,0,0,.12);
 }
+
 h2{
   text-align:center;
   margin-bottom:20px;
 }
+
 label{
   font-size:14px;
   color:#555;
 }
+
 input{
   width:100%;
   padding:14px;
@@ -39,7 +48,8 @@ input{
   border:1px solid #ddd;
   font-size:16px;
 }
-button,a{
+
+button{
   width:100%;
   padding:16px;
   border:none;
@@ -49,10 +59,8 @@ button,a{
   font-size:18px;
   font-weight:800;
   cursor:pointer;
-  text-decoration:none;
-  display:block;
-  text-align:center;
 }
+
 .url-box{
   background:#f1f3f6;
   padding:12px;
@@ -61,41 +69,79 @@ button,a{
   word-break:break-all;
   margin-top:16px;
 }
+
 .actions{
   display:flex;
   gap:10px;
   margin-top:10px;
 }
-.copy{background:#25D366}
-.open{background:#007aff}
+
+.copy{
+  flex:1;
+  background:#25D366;
+}
+
+.open{
+  flex:1;
+  background:#007aff;
+}
+
 .qr{
   width:260px;
   height:260px;
   display:block;
-  margin:0 auto 14px;
+  margin:0 auto 16px;
 }
+
 .amount{
   font-size:38px;
   font-weight:900;
   text-align:center;
-  margin:10px 0 16px;
+  margin-bottom:18px;
 }
+
+.pay-now{
+  width:100%;
+  padding:16px;
+  border-radius:18px;
+  background:linear-gradient(135deg,#000,#222);
+  color:#fff;
+  font-weight:800;
+  font-size:18px;
+  text-align:center;
+  text-decoration:none;
+  display:block;
+}
+
 .whatsapp{
+  width:100%;
+  margin-top:12px;
+  padding:14px;
+  border-radius:16px;
   background:#25D366;
-  margin-top:14px;
+  color:#fff;
+  font-weight:700;
+  font-size:16px;
+  text-align:center;
+  text-decoration:none;
+  display:block;
 }
+
 .footer{
   margin-top:18px;
   text-align:center;
   font-weight:800;
 }
-.hidden{display:none}
+
+.hidden{
+  display:none;
+}
 </style>
 </head>
 
 <body>
 
-<!-- GENERATOR -->
+<!-- ================= GENERATOR ================= -->
 <div id="generator" class="container">
   <div class="card">
     <h2>Generate Payment Link</h2>
@@ -109,30 +155,34 @@ button,a{
     <button onclick="generate()">Generate Link</button>
 
     <div id="result" class="hidden">
-      <div class="url-box" id="url"></div>
+      <div id="url" class="url-box"></div>
       <div class="actions">
         <button class="copy" onclick="copyLink()">📋 Copy</button>
         <button class="open" onclick="openLink()">🔗 Open</button>
       </div>
     </div>
   </div>
+
   <div class="footer">ADP | Always Deliver Pass</div>
 </div>
 
-<!-- PAY PAGE -->
+<!-- ================= PAY PAGE ================= -->
 <div id="pay" class="container hidden">
   <div class="card">
     <img id="qr" class="qr">
     <div id="am" class="amount">₹ 0</div>
-    <a id="payNow">💳 Pay Now</a>
+
+    <a id="payNow" class="pay-now">💳 Pay Now</a>
     <a id="wa" class="whatsapp">💬 Paid? Confirm on WhatsApp</a>
   </div>
+
   <div class="footer">ADP | Always Deliver Pass</div>
 </div>
 
 <script>
 const DEFAULT_UPI = "6301313335@mbk";
 const WHATSAPP_NO = "916301313335";
+let generatedLink = "";
 
 function show(view){
   document.getElementById("generator").classList.add("hidden");
@@ -140,17 +190,13 @@ function show(view){
   document.getElementById(view).classList.remove("hidden");
 }
 
+/* -------- ROUTER -------- */
 function route(){
-  const hash = location.hash.replace("#","").split("/").filter(Boolean)
+  const hash = location.hash.replace("#","").split("/")
+    .filter(Boolean)
     .map(decodeURIComponent);
 
-  // Default → generator
-  if(hash.length === 0){
-    show("generator");
-    return;
-  }
-
-  if(hash[0] !== "pay"){
+  if(hash.length === 0 || hash[0] !== "pay"){
     show("generator");
     return;
   }
@@ -161,6 +207,7 @@ function route(){
   if(hash.length === 2){
     amount = hash[1];
   }
+
   if(hash.length === 3){
     upi = hash[1];
     amount = hash[2];
@@ -189,12 +236,15 @@ function route(){
 window.addEventListener("hashchange", route);
 route();
 
-let generatedLink = "";
-
+/* -------- GENERATE -------- */
 function generate(){
   const upi = document.getElementById("upi").value.trim();
   const amount = document.getElementById("amount").value;
-  if(!amount){ alert("Enter amount"); return; }
+
+  if(!amount){
+    alert("Enter amount");
+    return;
+  }
 
   if(upi === ""){
     generatedLink = `${location.origin}${location.pathname}#/pay/${amount}`;
