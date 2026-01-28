@@ -75,7 +75,7 @@
     <div class="label">Amount to Pay</div>
     <div id="am" class="amount"></div>
 
-    <!-- ONLY PAY NOW -->
+    <!-- PAY NOW -->
     <a id="payNow" class="pay-now">💳 Pay Now</a>
 
     <!-- WHATSAPP CONFIRM -->
@@ -88,13 +88,12 @@
 <script>
   const p = new URLSearchParams(location.search);
   const am = p.get("am") || "0";
-  const tn = p.get("tn") || "";
   const UPI_ID = "6301313335@mbk";
 
   document.getElementById("am").textContent = "₹ " + am;
 
   const upi =
-    `upi://pay?pa=${encodeURIComponent(UPI_ID)}&am=${encodeURIComponent(am)}&tn=${encodeURIComponent(tn)}&cu=INR`;
+    `upi://pay?pa=${encodeURIComponent(UPI_ID)}&am=${encodeURIComponent(am)}&cu=INR`;
 
   // QR code
   document.getElementById("qr").src =
@@ -104,10 +103,12 @@
   // Pay Now → UPI chooser / default app
   document.getElementById("payNow").href = upi;
 
-  // WhatsApp confirm (no UPI ID)
+  // WhatsApp message (clean & professional)
   document.getElementById("wa").href =
     "https://wa.me/916301313335?text=" +
-    encodeURIComponent(`I have paid ₹${am}.`);
+    encodeURIComponent(
+      `Hi 👋\nI’ve just completed the payment of ₹${am}.\nPlease confirm once you receive it 🙂`
+    );
 </script>
 </body>
 </html>
