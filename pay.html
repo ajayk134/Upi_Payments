@@ -1,202 +1,156 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Secure Payment</title>
+<title>UPI Payment</title>
 
 <style>
-body{
-  margin:0;
-  background:linear-gradient(180deg,#f4f6fb,#eef1f7);
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial;
-}
-
-.wrapper{
-  max-width:420px;
-  margin:auto;
-  padding:20px;
-}
-
-.card{
-  background:#fff;
-  border-radius:24px;
-  padding:26px;
-  text-align:center;
-  box-shadow:0 25px 60px rgba(0,0,0,.12);
-}
-
-.qr{
-  width:260px;
-  height:260px;
-  margin-bottom:16px;
-}
-
-.small{
-  color:#777;
-  font-size:14px;
-}
-
-.amount{
-  font-size:42px;
-  font-weight:900;
-  margin:8px 0 18px;
-}
-
-/* APP BUTTONS */
-.apps{
-  display:flex;
-  justify-content:space-between;
-  gap:14px;
-  margin-bottom:22px;
-}
-
-.app-btn{
-  width:72px;
-  height:72px;
-  border-radius:16px;
-  border:1px solid #eee;
-  background:#fff;
-  box-shadow:0 10px 24px rgba(0,0,0,.06);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-}
-
-.app-btn img{
-  width:42px;
-  height:42px;
-}
-
-/* PAY NOW */
-.pay-btn{
-  display:block;
-  padding:18px;
-  border-radius:18px;
-  background:linear-gradient(135deg,#000,#333);
-  color:#fff;
-  font-weight:800;
-  text-decoration:none;
-  font-size:18px;
-  margin-bottom:14px;
-}
-
-/* WHATSAPP (DISABLED INITIALLY) */
-.whatsapp{
-  display:block;
-  padding:15px;
-  border-radius:16px;
-  background:#c9c9c9;
-  color:#fff;
-  font-weight:700;
-  text-decoration:none;
-  pointer-events:none;
-  opacity:.6;
-}
-
-.whatsapp.active{
-  background:#25D366;
-  pointer-events:auto;
-  opacity:1;
-}
-
-.footer{
-  text-align:center;
-  margin-top:18px;
-  font-weight:800;
-}
+  body {
+    margin: 0;
+    background: #f5f6fa;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
+  }
+  .container {
+    max-width: 420px;
+    margin: auto;
+    padding: 18px;
+  }
+  .card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 22px;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+  }
+  .qr {
+    width: 260px;
+    height: 260px;
+    object-fit: contain;
+    margin-bottom: 14px;
+  }
+  .label {
+    color: #777;
+    font-size: 14px;
+  }
+  .amount {
+    font-size: 38px;
+    font-weight: 900;
+    margin: 8px 0 18px;
+  }
+  .apps {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 18px;
+    padding: 0 6px;
+  }
+  .apps a {
+    width: 72px;
+    height: 72px;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+  }
+  .apps img {
+    width: 40px;
+    height: 40px;
+  }
+  .pay-now {
+    margin-top: 18px;
+    background: #000;
+    color: #fff;
+    font-weight: 800;
+    padding: 16px;
+    border-radius: 16px;
+    text-decoration: none;
+    display: block;
+    font-size: 18px;
+  }
+  .whatsapp {
+    margin-top: 16px;
+    background: #25D366;
+    color: #fff;
+    font-weight: 700;
+    padding: 14px;
+    border-radius: 14px;
+    text-decoration: none;
+    display: block;
+  }
+  .footer {
+    margin-top: 18px;
+    font-weight: 800;
+    text-align: center;
+  }
 </style>
 </head>
 
 <body>
-
-<div class="wrapper">
+<div class="container">
   <div class="card">
+    <img id="qr" class="qr" alt="QR code">
 
-    <img id="qr" class="qr" alt="UPI QR Code">
+    <div class="label">Amount to Pay</div>
+    <div id="am" class="amount"></div>
 
-    <div class="small">Amount to Pay</div>
-    <div id="am" class="amount">₹ 0</div>
-
-    <!-- APP BUTTONS -->
+    <!-- ONLY PHONEPE & PAYTM -->
     <div class="apps">
-      <button class="app-btn" onclick="payPhonePe()">
-        <img src="icons/phonepe.png" alt="PhonePe">
-      </button>
-      <button class="app-btn" onclick="payPaytm()">
-        <img src="icons/paytm.png" alt="Paytm">
-      </button>
+      <a id="phonepe" title="PhonePe">
+        <img src="icons/phonepe.png">
+      </a>
+      <a id="paytm" title="Paytm">
+        <img src="icons/paytm.png">
+      </a>
     </div>
 
-    <!-- PAY NOW -->
-    <a id="payNow" class="pay-btn">💳 Pay Now</a>
+    <!-- PAY NOW (UPI CHOOSER) -->
+    <a id="payNow" class="pay-now">💳 Pay Now</a>
 
-    <!-- WHATSAPP (ENABLED AFTER PAYMENT ATTEMPT) -->
+    <!-- WHATSAPP CONFIRM -->
     <a id="wa" class="whatsapp">💬 Paid? Confirm on WhatsApp</a>
-
   </div>
 
   <div class="footer">ADP | Always Deliver Pass</div>
 </div>
 
 <script>
-/* CONFIG */
-const UPI_ID = "6301313335@mbk";
-const WHATSAPP_NO = "916301313335";
+  const p = new URLSearchParams(location.search);
+  const am = p.get("am") || "0";
+  const tn = p.get("tn") || "";
+  const UPI_ID = "6301313335@mbk";
 
-/* PARAMS */
-const p = new URLSearchParams(location.search);
-const am = p.get("am") || "0";
-const tn = p.get("tn") || "";
+  document.getElementById("am").textContent = "₹ " + am;
 
-/* UI */
-document.getElementById("am").textContent = "₹ " + am;
+  const upi =
+    `upi://pay?pa=${encodeURIComponent(UPI_ID)}&am=${encodeURIComponent(am)}&tn=${encodeURIComponent(tn)}&cu=INR`;
 
-/* UPI LINK */
-const upi =
-  `upi://pay?pa=${encodeURIComponent(UPI_ID)}&am=${encodeURIComponent(am)}&tn=${encodeURIComponent(tn)}&cu=INR`;
+  // QR
+  document.getElementById("qr").src =
+    "https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=" +
+    encodeURIComponent(upi);
 
-/* QR */
-document.getElementById("qr").src =
-  "https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=" +
-  encodeURIComponent(upi);
+  // Pay Now (chooser / default app)
+  document.getElementById("payNow").href = upi;
 
-/* PAY NOW */
-document.getElementById("payNow").href = upi;
+  // WhatsApp confirm (NO UPI ID)
+  document.getElementById("wa").href =
+    "https://wa.me/916301313335?text=" +
+    encodeURIComponent(`I have paid ₹${am}.`);
 
-/* PLATFORM */
-const isAndroid = /Android/i.test(navigator.userAgent);
+  const isAndroid = /Android/i.test(navigator.userAgent);
 
-/* TRACK PAYMENT ATTEMPT */
-let paymentAttempted = false;
-
-/* APP HANDLERS */
-function payPhonePe(){
-  paymentAttempted = true;
-  window.location.href = isAndroid
+  // PhonePe
+  document.getElementById("phonepe").href = isAndroid
     ? `phonepe://upi/pay?pa=${encodeURIComponent(UPI_ID)}&am=${encodeURIComponent(am)}&tn=${encodeURIComponent(tn)}&cu=INR`
     : upi;
-}
 
-function payPaytm(){
-  paymentAttempted = true;
-  window.location.href = isAndroid
+  // Paytm
+  document.getElementById("paytm").href = isAndroid
     ? `paytmmp://upi/pay?pa=${encodeURIComponent(UPI_ID)}&am=${encodeURIComponent(am)}&tn=${encodeURIComponent(tn)}&cu=INR`
     : upi;
-}
-
-/* ENABLE WHATSAPP AFTER RETURN */
-document.addEventListener("visibilitychange", () => {
-  if (paymentAttempted && document.visibilityState === "visible") {
-    const wa = document.getElementById("wa");
-    wa.classList.add("active");
-    wa.href =
-      `https://wa.me/${WHATSAPP_NO}?text=` +
-      encodeURIComponent(`Hi, I have completed the payment of ₹${am}.`);
-  }
-});
 </script>
-
 </body>
 </html>
