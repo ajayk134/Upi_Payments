@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Generate UPI Link</title>
+
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f2f2f2;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .box {
+      background: white;
+      padding: 22px;
+      border-radius: 14px;
+      width: 100%;
+      max-width: 360px;
+      box-shadow: 0 10px 25px rgba(0,0,0,.12);
+    }
+    h2 { text-align: center; }
+    input {
+      width: 100%;
+      padding: 14px;
+      margin: 10px 0;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      background: #000;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .link {
+      margin-top: 10px;
+      font-size: 13px;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h2>UPI Link Generator</h2>
+
+  <input id="upi" placeholder="UPI ID (example@upi)">
+  <input id="amount" type="number" placeholder="Amount ₹">
+  <input id="note" placeholder="Note (optional)">
+
+  <button onclick="gen()">Generate</button>
+
+  <div class="link" id="out"></div>
+</div>
+
+<script>
+function gen() {
+  const u = upi.value.trim();
+  const a = amount.value.trim();
+  const n = note.value.trim();
+
+  if(!u || !a) return alert("Enter UPI & amount");
+
+  const link =
+    `${location.origin}/pay.html?pa=${encodeURIComponent(u)}&am=${a}&tn=${encodeURIComponent(n)}`;
+
+  out.innerHTML = `<b>Share this link:</b><br>${link}`;
+}
+</script>
+
+</body>
+</html>
